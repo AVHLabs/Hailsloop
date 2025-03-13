@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hailsloop - Trading & Gaming</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0d1b2a;
+            color: white;
+            text-align: center;
+        }
+        nav {
+            background: linear-gradient(90deg, #1b263b, #415a77);
+            padding: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .tab-buttons button {
+            background-color: #ff4500;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .tab-buttons button:hover {
+            background-color: #e63e00;
+        }
+        .content-section {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        .game-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 30px;
+            background-color: #ff4500;
+            color: white;
+            font-size: 18px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .game-button:hover {
+            background-color: #e63e00;
+        }
+        .profit {
+            color: #21bf73;
+        }
+        .loss {
+            color: #ff4500;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>Hailsloop - Trading & Gaming</h1>
+    </nav>
+    <div class="tab-buttons">
+        <button onclick="showSection('trading')">📈 Trading Simulation</button>
+        <button onclick="showSection('gaming')">🎮 Play Game</button>
+    </div>
+    <div id="trading" class="content-section active">
+        <h2>Trading Simulation</h2>
+        <div class="balance-box">
+            <h3>Total Balance: $<span id="totalBalance">1000</span></h3>
+        </div>
+        <label for="company">Select Company:</label>
+        <select id="company">
+            <option value="amazon">Amazon</option>
+            <option value="tesla">Tesla</option>
+            <option value="apple">Apple</option>
+            <option value="google">Google</option>
+        </select>
+        <label for="multiplier">Choose Multiplier (3-20):</label>
+        <input type="number" id="multiplier" min="3" max="20" value="3">
+        <label for="stocks">Number of Stocks (1-10,000):</label>
+        <input type="number" id="stocks" min="1" max="10000" value="1">
+        <button onclick="startTrading()">Start Trading</button>
+        <div class="result-box">
+            <h3>Trading Results</h3>
+            <p>Initial Number: <span id="initialNumber">-</span></p>
+            <p>Final Number: <span id="finalNumber">-</span></p>
+            <p>Profit/Loss: <span id="profitLoss">-</span></p>
+        </div>
+        <canvas id="chart"></canvas>
+    </div>
+    <div id="gaming" class="content-section">
+        <h2>🎮 Play Infinite Maze</h2>
+        <p>Click the button below to play the game.</p>
+        <a href="https://infinitemaze41.tiiny.site" target="_blank" class="game-button">▶️ Play Now</a>
+    </div>
+    <script>
+        let chartInstance = null;
+        let totalBalance = 1000;
+        function startTrading() {
+            let multiplier = parseInt(document.getElementById("multiplier").value);
+            let stocks = parseInt(document.getElementById("stocks").value);
+            let number = Math.floor(Math.random() * 100) + 1;
+            let initialNumber = number;
+            let history = [{ name: "Start", value: number }];
+            for (let i = 0; i < multiplier; i++) {
+                if (number % 2 === 0) {
+                    number /= 2;
+                } else {
+                    number = number * 3 + 1;
+                }
+                history.push({ name: "Step " + (i + 1), value: number });
+            }
+            let profitLoss = (number - initialNumber) * stocks;
+            totalBalance += profitLoss;
+            document.getElementById("totalBalance").innerText = totalBalance.toFixed(2);
+            document.getElementById("initialNumber").innerText = initialNumber;
+            document.getElementById("finalNumber").innerText = number;
+            let profitLossElement = document.getElementById("profitLoss");
+            profitLossElement.innerText = profitLoss > 0 ? `+${profitLoss}` : profitLoss;
+            profitLossElement.className = profitLoss > 0 ? "profit" : "loss";
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+            let ctx = document.getElementById("chart").getContext("2d");
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: history.map(h => h.name),
+                    datasets: [{
+                        label: "Stock Value",
+                        data: history.map(h => h.value),
+                        borderColor: "#21bf73",
+                        borderWidth: 2,
+                        backgroundColor: "rgba(33, 191, 115, 0.2)",
+                        pointBackgroundColor: "#21bf73",
+                        tension: 0.4
+                    }]
+                }
+            });
+        }
+        function showSection(sectionId) {
+            document.querySelectorAll(".content-section").forEach(section => {
+                section.classList.remove("active");
+            });
+            document.getElementById(sectionId).classList.add("active");
+        }
+    </script>
+</body>
+</html>
